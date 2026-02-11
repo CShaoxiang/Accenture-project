@@ -30,24 +30,24 @@ The implementation uses TypeScript throughout, with React/Next.js for the fronte
     - **Property 1: Entity Round-Trip Persistence**
     - **Validates: Requirements 1.3, 1.5, 8.1, 8.3, 11.1**
   
-  - [ ]* 2.3 Write property test for referential integrity
+  - [x] 2.3 Write property test for referential integrity
     - **Property 2: Referential Integrity Enforcement**
     - **Validates: Requirements 14.2**
 
-- [ ] 3. Implement authentication and authorization system
-  - [ ] 3.1 Create User model and authentication service
+- [x] 3. Implement authentication and authorization system
+  - [x] 3.1 Create User model and authentication service
     - Implement JWT-based authentication
     - Create login and registration endpoints
     - Implement password hashing with bcrypt
     - _Requirements: 12.1, 12.2_
   
-  - [ ] 3.2 Implement session management and RBAC
+  - [x] 3.2 Implement session management and RBAC
     - Create session middleware for Express
     - Implement role-based access control
     - Add permission checking utilities
     - _Requirements: 12.4, 12.5, 12.6_
   
-  - [ ]* 3.3 Write property tests for authentication
+  - [x] 3.3 Write property tests for authentication
     - **Property 28: Unauthenticated Access Rejection**
     - **Property 29: Credential Validation**
     - **Property 30: Session Creation on Authentication**
@@ -55,20 +55,20 @@ The implementation uses TypeScript throughout, with React/Next.js for the fronte
     - **Property 32: Session Expiration Enforcement**
     - **Validates: Requirements 12.1, 12.2, 12.3, 12.4, 12.5, 12.6**
 
-- [ ] 4. Checkpoint - Ensure database and auth tests pass
+- [~] 4. Checkpoint - Ensure database and auth tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 
 ### Phase 2: Core Event and Venue Management
 
-- [ ] 5. Implement Event Service and API endpoints
-  - [ ] 5.1 Create EventService with CRUD operations
+- [x] 5. Implement Event Service and API endpoints
+  - [x] 5.1 Create EventService with CRUD operations
     - Implement createEvent, getEvent, updateEvent, listEvents
     - Implement event-entity associations (venues, student bodies)
     - Add event status reporting functionality
     - _Requirements: 11.1, 11.3, 11.4, 11.5_
   
-  - [ ] 5.2 Create Event API endpoints
+  - [x] 5.2 Create Event API endpoints
     - POST /api/v1/events - Create event
     - GET /api/v1/events - List events with filters
     - GET /api/v1/events/:id - Get event details
@@ -88,14 +88,14 @@ The implementation uses TypeScript throughout, with React/Next.js for the fronte
     - Test error responses (400, 404)
     - _Requirements: 11.1, 18.3_
 
-- [ ] 6. Implement Venue Service and API endpoints
-  - [ ] 6.1 Create VenueService with search and management
+- [x] 6. Implement Venue Service and API endpoints
+  - [x] 6.1 Create VenueService with search and management
     - Implement searchVenues with criteria filtering
     - Implement createVenue, getVenue, updateVenue
     - Implement updateVenueStatus with history tracking
     - _Requirements: 1.1, 1.3, 1.4, 1.5, 2.1, 2.2_
   
-  - [ ] 6.2 Create Venue API endpoints
+  - [x] 6.2 Create Venue API endpoints
     - POST /api/v1/venues - Create venue
     - GET /api/v1/venues - Search venues
     - GET /api/v1/venues/:id - Get venue details
@@ -116,8 +116,8 @@ The implementation uses TypeScript throughout, with React/Next.js for the fronte
     - Test invalid status transitions
     - _Requirements: 1.1, 2.2_
 
-- [ ] 7. Implement status tracking and dashboard data
-  - [ ] 7.1 Create status tracking utilities
+- [-] 7. Implement status tracking and dashboard data
+  - [-] 7.1 Create status tracking utilities
     - Implement status history recording
     - Implement status aggregation for dashboard
     - Add time elapsed calculation utilities

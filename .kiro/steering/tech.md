@@ -77,4 +77,44 @@ npm run lint            # Lint frontend code
 - Use Jest for unit and integration tests
 - Use fast-check for property-based testing to validate correctness properties
 - Tests should be co-located with source files using `.test.ts` or `.test.tsx` suffix
-- Run tests without watch mode in CI/CD (`--run` flag)
+- Run tests without watch mode in CI/CD (Jest runs once by default, no `--run` flag needed)
+
+### Jest CLI Rules (CRITICAL)
+
+**Jest does NOT support `--run` flag.** This is a common hallucination pattern.
+
+Valid Jest flags:
+- `--runInBand` - Run tests serially (required for database tests)
+- `--watch` - Watch mode for development
+- `--coverage` - Generate coverage report
+- `--verbose` - Detailed test output
+- `--testNamePattern` - Filter tests by name
+
+Running specific tests:
+```bash
+npm test -- auth.service.test.ts                    # Run specific file
+npm test -- auth.service.test.ts --runInBand        # Run serially (for DB tests)
+npm test -- auth.service.test.ts --verbose          # With detailed output
+npm test -- --testNamePattern="should validate"     # Filter by test name
+```
+
+### Test Execution Policy
+
+**For property-based tests or database tests:**
+- ALWAYS use `--runInBand` to prevent race conditions
+- NEVER use `--watch` in automated contexts
+- Ensure database migrations are applied before running tests
+- Check `package.json` scripts before suggesting commands
+
+**CLI Safety Rules:**
+1. Always inspect `package.json` scripts first before suggesting commands
+2. Only use flags officially supported by the tool version in use
+3. Never invent CLI flags - if unsure, check tool documentation
+4. If a command fails due to unknown flag, remove the flag and retry properly
+5. Do not repeat a failed command without modification
+
+**Error Reflection Rule:**
+- If a command fails, explicitly explain why it failed
+- Do not re-run the same command without changes
+- Adjust based on the actual error message
+- Validate against official CLI documentation patterns
