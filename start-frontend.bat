@@ -1,0 +1,6 @@
+@echo off
+echo Starting Idea Hub Frontend...
+echo.
+cd packages\frontend
+echo Starting Next.js development server...
+call npm run dev

@@ -395,7 +395,7 @@ The implementation uses TypeScript throughout, with React/Next.js for the fronte
 
 ### Phase 9: Frontend - Core Components
 
-- [ ] 24. Set up Next.js frontend project
+- [x] 24. Set up Next.js frontend project
   - Initialize Next.js with TypeScript and TailwindCSS
   - Configure React Query for data fetching
   - Set up API client with Axios
@@ -404,7 +404,7 @@ The implementation uses TypeScript throughout, with React/Next.js for the fronte
   - _Requirements: 18.1_
 
 - [ ] 25. Implement authentication UI
-  - [ ] 25.1 Create login and registration pages
+  - [x] 25.1 Create login and registration pages
     - Build login form with validation
     - Build registration form with validation
     - Implement authentication flow with JWT
@@ -418,14 +418,14 @@ The implementation uses TypeScript throughout, with React/Next.js for the fronte
     - _Requirements: 12.1, 12.2, 12.3_
 
 - [ ] 26. Implement Dashboard Component
-  - [ ] 26.1 Create dashboard layout and status cards
+  - [x] 26.1 Create dashboard layout and status cards
     - Build event summary cards
     - Create status distribution visualizations with Recharts
     - Add entity status breakdown by type
     - Implement filter controls
     - _Requirements: 13.1, 13.3, 13.4_
   
-  - [ ] 26.2 Add reminder queue display
+  - [x] 26.2 Add reminder queue display
     - Create overdue entity list
     - Add quick action buttons
     - Implement real-time updates
@@ -438,7 +438,7 @@ The implementation uses TypeScript throughout, with React/Next.js for the fronte
     - _Requirements: 13.1, 13.4_
 
 - [ ] 27. Implement Event Management UI
-  - [ ] 27.1 Create event list and detail pages
+  - [-] 27.1 Create event list and detail pages
     - Build event list with filtering
     - Create event detail view with entity associations
     - Add event creation form

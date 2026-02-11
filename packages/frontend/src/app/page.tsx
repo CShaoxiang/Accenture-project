@@ -1,8 +1,19 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push('/dashboard');
+  }, [router]);
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
       <h1 className="text-4xl font-bold">Idea Hub</h1>
-      <p className="mt-4 text-xl">Talent Acquisition Platform</p>
+      <p className="mt-4 text-xl">Loading...</p>
     </main>
   );
 }
