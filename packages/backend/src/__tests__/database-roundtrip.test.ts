@@ -140,6 +140,16 @@ describe('Property 1: Entity Round-Trip Persistence', () => {
       else if (typeof originalValue === 'object' && originalValue !== null) {
         expect(retrievedValue).toEqual(originalValue);
       }
+      // Handle Decimal fields - Prisma Decimal type needs special comparison
+      else if (typeof originalValue === 'number' && retrievedValue !== null && retrievedValue !== undefined) {
+        // Prisma returns Decimal as Prisma.Decimal object or string depending on context
+        const retrievedNum = typeof retrievedValue === 'object' && 'toNumber' in retrievedValue
+          ? retrievedValue.toNumber()
+          : typeof retrievedValue === 'string'
+          ? parseFloat(retrievedValue)
+          : retrievedValue;
+        expect(retrievedNum).toBe(originalValue);
+      }
       // Handle primitives
       else {
         expect(retrievedValue).toBe(originalValue);
