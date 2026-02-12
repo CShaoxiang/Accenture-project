@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import EventChatAssistant from './components/EventChatAssistant';
 
 export default function NewEventPage() {
   const router = useRouter();
+  const [showChat, setShowChat] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     type: 'hackathon',
@@ -18,7 +20,13 @@ export default function NewEventPage() {
     e.preventDefault();
     // TODO: API call to create event
     console.log('Creating event:', formData);
-    alert('Event created! (Backend integration pending)');
+    
+    // Show chat assistant instead of redirecting
+    setShowChat(true);
+  };
+
+  const handleCloseChat = () => {
+    setShowChat(false);
     router.push('/dashboard');
   };
 
@@ -126,7 +134,7 @@ export default function NewEventPage() {
                   type="submit"
                   className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  Create Event
+                  Create Event & Get AI Help
                 </button>
                 <button
                   type="button"
@@ -140,6 +148,11 @@ export default function NewEventPage() {
           </div>
         </div>
       </main>
+
+      {/* Chat Assistant Modal */}
+      {showChat && (
+        <EventChatAssistant eventData={formData} onClose={handleCloseChat} />
+      )}
     </div>
   );
 }

@@ -31,7 +31,7 @@ api.interceptors.response.use(
 
 export interface User {
   id: string;
-  email: string;
+  username: string;
   name: string;
   role: string;
 }
@@ -42,13 +42,13 @@ export interface AuthResponse {
 }
 
 export const authApi = {
-  register: async (email: string, password: string, name: string): Promise<AuthResponse> => {
-    const response = await api.post('/auth/register', { email, password, name });
+  register: async (username: string, password: string, name: string): Promise<AuthResponse> => {
+    const response = await api.post('/auth/register', { username, password, name });
     return response.data;
   },
 
-  login: async (email: string, password: string): Promise<AuthResponse> => {
-    const response = await api.post('/auth/login', { email, password });
+  login: async (username: string, password: string): Promise<AuthResponse> => {
+    const response = await api.post('/auth/login', { username, password });
     return response.data;
   },
 };

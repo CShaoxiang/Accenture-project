@@ -7,13 +7,13 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 const JWT_EXPIRES_IN = '7d';
 
 export interface RegisterDTO {
-  email: string;
+  username: string;
   password: string;
   name: string;
 }
 
 export interface LoginDTO {
-  email: string;
+  username: string;
   password: string;
 }
 
@@ -21,7 +21,7 @@ export interface AuthResponse {
   token: string;
   user: {
     id: string;
-    email: string;
+    username: string;
     name: string;
     role: string;
   };
@@ -30,25 +30,25 @@ export interface AuthResponse {
 export class AuthService {
   async register(data: RegisterDTO): Promise<AuthResponse> {
     const existingUser = await prisma.user.findUnique({
-      where: { email: data.email },
+      where: { username: data.username },
     });
 
     if (existingUser) {
-      throw new Error('User already exists');
+      throw new Error('Username already exists');
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
     const user = await prisma.user.create({
       data: {
-        email: data.email,
+        username: data.username,
         password: hashedPassword,
         name: data.name,
       },
     });
 
     const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role },
+      { userId: user.id, username: user.username, role: user.role },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
     );
@@ -57,7 +57,7 @@ export class AuthService {
       token,
       user: {
         id: user.id,
-        email: user.email,
+        username: user.username,
         name: user.name,
         role: user.role,
       },
@@ -66,7 +66,7 @@ export class AuthService {
 
   async login(data: LoginDTO): Promise<AuthResponse> {
     const user = await prisma.user.findUnique({
-      where: { email: data.email },
+      where: { username: data.username },
     });
 
     if (!user) {
@@ -80,7 +80,7 @@ export class AuthService {
     }
 
     const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role },
+      { userId: user.id, username: user.username, role: user.role },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
     );
@@ -89,7 +89,7 @@ export class AuthService {
       token,
       user: {
         id: user.id,
-        email: user.email,
+        username: user.username,
         name: user.name,
         role: user.role,
       },

@@ -1,0 +1,60 @@
+{
+  "name": "Event Planning Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "event-assistant",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Extract incoming data\nconst message = $json.message || '';\nconst action = $json.action || null;\nconst eventData = $json.eventData || {};\nconst conversationHistory = $json.conversationHistory || [];\n\n// Determine conversation stage\nlet response = {};\n\n// If it's an action button click\nif (action) {\n  switch(action) {\n    case 'venue_search':\n      response = {\n        message: `Let's find the perfect venue for your ${eventData.type}! 🏢\\n\\nWhat city or location are you looking for?`,\n        actions: []\n      };\n      break;\n      \n    case 'candidate_source':\n      response = {\n        message: `Let's find candidates for your ${eventData.type}! 👥\\n\\nWhat skills or technologies are you looking for?\\n(e.g., Python, React, Machine Learning)`,\n        actions: []\n      };\n      break;\n      \n    case 'task_generate':\n      response = {\n        message: `Generating personalized task checklist for \"${eventData.name}\"...\\n\\n**High Priority Tasks:**\\n⬜ Finalize venue booking\\n⬜ Send candidate invitations\\n⬜ Set up registration system\\n\\n**Medium Priority:**\\n⬜ Coordinate with partners\\n⬜ Prepare materials\\n\\nWould you like me to set up reminders for these?`,\n        actions: [\n          { id: 'reminders', label: '🔔 Set Up Reminders', type: 'custom' },\n          { id: 'done', label: '✅ All Set!', type: 'custom' }\n        ]\n      };\n      break;\n      \n    default:\n      response = {\n        message: 'I can help you with that! What would you like to know?',\n        actions: []\n      };\n  }\n} \n// If it's a text message\nelse if (message) {\n  const lowerMessage = message.toLowerCase();\n  \n  // Venue-related\n  if (lowerMessage.includes('venue') || lowerMessage.includes('location')) {\n    response = {\n      message: `I can help you find venues! Here are some options:\\n\\n🏢 **Tech Hub Downtown**\\n   • Capacity: 200 people\\n   • Price: $2,500/day\\n   • Rating: 4.8/5\\n\\n🏢 **Innovation Center**\\n   • Capacity: 150 people\\n   • Price: $1,800/day\\n   • Rating: 4.6/5\\n\\nWhich one interests you?`,\n      actions: [\n        { id: 'book1', label: 'Book Tech Hub', type: 'venue_search', data: { venueId: '123' } },\n        { id: 'book2', label: 'Book Innovation Center', type: 'venue_search', data: { venueId: '456' } }\n      ]\n    };\n  }\n  // Candidate-related\n  else if (lowerMessage.includes('candidate') || lowerMessage.includes('recruit')) {\n    response = {\n      message: `I'll help you source candidates! Which platforms should I search?`,\n      actions: [\n        { id: 'github', label: '🐙 GitHub', type: 'candidate_source', data: { platform: 'github' } },\n        { id: 'kaggle', label: '📊 Kaggle', type: 'candidate_source', data: { platform: 'kaggle' } },\n        { id: 'both', label: '🔍 Both', type: 'candidate_source', data: { platform: 'both' } }\n      ]\n    };\n  }\n  // Task-related\n  else if (lowerMessage.includes('task') || lowerMessage.includes('checklist')) {\n    response = {\n      message: `Here's your task checklist for \"${eventData.name}\":\\n\\n✅ Event created\\n⬜ Book venue\\n⬜ Source candidates\\n⬜ Send invitations\\n⬜ Set up registration\\n\\nWhat would you like to tackle first?`,\n      actions: [\n        { id: 'venue', label: '🏢 Find Venues', type: 'venue_search' },\n        { id: 'candidates', label: '👥 Source Candidates', type: 'candidate_source' }\n      ]\n    };\n  }\n  // Default response\n  else {\n    response = {\n      message: `I understand you're asking about: \"${message}\"\\n\\nI can help you with:\\n• Finding venues\\n• Sourcing candidates\\n• Generating tasks\\n• Setting up reminders\\n\\nWhat would you like to do?`,\n      actions: [\n        { id: 'venue', label: '🏢 Find Venues', type: 'venue_search' },\n        { id: 'candidates', label: '👥 Source Candidates', type: 'candidate_source' },\n        { id: 'tasks', label: '✅ Generate Tasks', type: 'task_generate' }\n      ]\n    };\n  }\n}\n// First interaction (no message or action)\nelse {\n  response = {\n    message: `🎉 Great! I've received the details for \"${eventData.name}\".\\n\\nI'm your AI Event Planning Assistant. I can help you with:\\n\\n🏢 Finding and booking venues\\n👥 Sourcing candidates\\n✅ Generating task checklists\\n📧 Setting up reminders\\n\\nWhat would you like to tackle first?`,\n    actions: [\n      { id: 'venue', label: '🏢 Find Venues', type: 'venue_search' },\n      { id: 'candidates', label: '👥 Source Candidates', type: 'candidate_source' },\n      { id: 'tasks', label: '✅ Generate Tasks', type: 'task_generate' }\n    ]\n  };\n}\n\nreturn { json: response };"
+      },
+      "name": "Process Message",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [650, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -3,8 +3,7 @@
 import Link from 'next/link';
 
 export default function DashboardPage() {
-  const user = { name: 'Demo User', email: 'demo@ideahub.com' };
-  const logout = () => {};
+  const user = { name: 'Demo User' };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -16,12 +15,6 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-700">Welcome, {user.name}</span>
-              <button
-                onClick={logout}
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
-              >
-                Logout
-              </button>
             </div>
           </div>
         </div>
