@@ -19,8 +19,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\Activate
 
 # Install dependencies
 echo "📥 Installing dependencies..."
-pip install -r requirements.txt
-
+pip install -e ".[dev,database,langgraph,observability]"
 # Test imports
 echo ""
 echo "🧪 Testing module imports..."
