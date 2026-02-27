@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     # JWT Configuration
     jwt_secret: str = os.getenv("JWT_SECRET", "your-secret-key-change-in-production")
     jwt_algorithm: str = os.getenv("JWT_ALGORITHM", "HS256")
-    jwt_expiration_hours: int = 24
+    jwt_expiration_hours: int = 6
 
     # Server Configuration
     server_host: str = os.getenv("SERVICE_HOST", "0.0.0.0")
