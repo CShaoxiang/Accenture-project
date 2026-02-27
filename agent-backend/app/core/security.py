@@ -2,15 +2,17 @@
 JWT Security and Token Management
 Handles JWT token verification and tenant context
 """
-
-from fastapi import HTTPException
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta , timezone
 from typing import Optional, Dict
 from app.core.config import settings
+from app.core.enums import ResponseCodeEnum
+from models.tokens import TokenPayload
+from api.globalExceptionHandler import InvalidTokenException, ExpiredTokenException
+from app.bussinessExceptions import BusinessException , globalExceptionHandler
 
 
-def verify_jwt_token(token: str) -> Dict:
+def verify_jwt_token(token: str) -> TokenPayload:
     """
     Verify JWT token signature and extract payload
     
@@ -21,8 +23,11 @@ def verify_jwt_token(token: str) -> Dict:
         Token payload with tenant_id and user_id
         
     Raises:
-        HTTPException: If token is invalid or signature verification fails
+        InvalidTokenException: If token is invalid or signature fails
+        ExpiredTokenException: If token has expired
     """
+    if not token or not isinstance(token, str) or len(token.strip()) == 0:
+        raise InvalidTokenException("Token cannot be empty")
     try:
         payload = jwt.decode(
             token,
@@ -33,52 +38,41 @@ def verify_jwt_token(token: str) -> Dict:
         user_id = payload.get('user_id')
         
         if not tenant_id:
-            raise HTTPException(status_code=400, detail="tenant_id not found in token")
+            raise InvalidTokenException()
         
-        return {
-            'tenant_id': tenant_id,
-            'user_id': user_id,
-            'sub': payload.get('sub')  # Subject (username typically)
-        }
+        return TokenPayload(
+            tenant_id = tenant_id,
+            user_id = user_id,
+            sub  = payload.get('sub')
+        )
+        
     except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.InvalidSignatureError:
-        raise HTTPException(status_code=401, detail="Invalid token signature")
-    except jwt.DecodeError:
-        raise HTTPException(status_code=401, detail="Invalid JWT token")
+        raise ExpiredTokenException()
+    except (jwt.InvalidSignatureError, jwt.DecodeError):
+        raise InvalidTokenException()
 
 
-def create_jwt_token(tenant_id: str, user_id: int, username: str, hours: Optional[int] = None) -> str:
+def create_jwt_token(token : TokenPayload) -> str:
     """
-    Create a new JWT token
-    
-    Args:
-        tenant_id: External tenant identifier
-        user_id: Internal user ID
-        username: Username/subject
-        hours: Token expiration hours (default from settings)
-        
-    Returns:
-        JWT token string
+    Create a new JWT token from TokenPayload DTO
     """
-    if hours is None:
-        hours = settings.jwt_expiration_hours
+    hours = settings.jwt_expiration_hours
     
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     expiry = now + timedelta(hours=hours)
     
     payload = {
-        'tenant_id': tenant_id,
-        'user_id': user_id,
-        'sub': username,
+        'tenant_id': token.tenant_id,
+        'user_id': token.user_id,
+        'sub': token.sub,
         'iat': int(now.timestamp()),
         'exp': int(expiry.timestamp())
     }
     
-    token = jwt.encode(
+    encode_token = jwt.encode(
         payload,
         settings.jwt_secret,
         algorithm=settings.jwt_algorithm
     )
     
-    return token
+    return encode_token
