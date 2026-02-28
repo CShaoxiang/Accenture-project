@@ -27,7 +27,7 @@ SessionLocal = sessionmaker(
 )
 
 
-def get_db_session():
+def get_db():
     """
     Dependency for getting database session
     
@@ -40,6 +40,11 @@ def get_db_session():
     try:
         # pauses the function , hands this session to API route
         yield db
+        db.commit()     
+    except Exception as e:
+        db.rollback()  
+        raise DBConnectionException()  # Raise a custom exception for database errors
+
     finally:
         # After the request is done, close the session to free resources
         db.close()

@@ -13,6 +13,11 @@ class ResponseCodeEnum(Enum):
     TOKEN_EXPIRED = (900,"Token has expired")
     INVALID_TOKEN = (901,"Invalid token signature")
 
+    #Database related
+    DB_CONNECTION_FAILED = (1000,"Database connection failed")
+
+    # Business logic related
+
 @property
 def getCode(self) -> int:
     return self.value[0]

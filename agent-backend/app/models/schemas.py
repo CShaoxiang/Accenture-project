@@ -3,7 +3,7 @@ Data Models and Pydantic Schemas
 SQLAlchemy ORM models for database layer
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, Text , JSON
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 
@@ -47,8 +47,8 @@ class AgentTask(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     task_name = Column(String, index=True)
     status = Column(String, default="pending")  # pending, running, completed, failed
-    input_data = Column(Text)  # JSON stored as string
-    output_data = Column(Text, nullable=True)  # JSON stored as string
+    input_data = Column(JSON)  # JSON stored as string
+    output_data = Column(JSON, nullable=True)  # JSON stored as string
     created_at = Column(DateTime, default=datetime.utcnow)
     completed_at = Column(DateTime, nullable=True)
     error_message = Column(String, nullable=True)

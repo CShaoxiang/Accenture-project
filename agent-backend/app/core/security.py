@@ -27,7 +27,7 @@ def verify_jwt_token(token: str) -> TokenPayload:
         ExpiredTokenException: If token has expired
     """
     if not token or not isinstance(token, str) or len(token.strip()) == 0:
-        raise InvalidTokenException("Token cannot be empty")
+        raise InvalidTokenException()
     try:
         payload = jwt.decode(
             token,
