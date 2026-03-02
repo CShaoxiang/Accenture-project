@@ -1,6 +1,6 @@
-from fastapi import Request ,Exception  
+from fastapi import Request, FastAPI   
 from fastapi.responses import JSONResponse
-from app.core.exceptions import BusinessException
+from app.exceptions.baseException import BusinessException
 import logging
 
 logger = logging.getLogger(__name__)
@@ -8,9 +8,9 @@ app = FastAPI()
 
 # Handle business exceptions
 @app.exception_handler(BusinessException)
-async def business_exception_handler(request: Request, exc: BussinessException):
+async def business_exception_handler(request: Request, exc: BusinessException):
 
-    logger.warning(f"Bussiness error at : {request.url} : {exc.message}") ")
+    logger.warning(f"Bussiness error at : {request.url} : {exc.message}")
 
     return JSONResponse(
         status_code = 400,
@@ -23,7 +23,7 @@ async def business_exception_handler(request: Request, exc: BussinessException):
 
 # Handle uncaught system exceptions
 @app.exception_handler(Exception)
-async def global_exception_handler(request : Request , exc : Exception):
+async def global_exception_handler(request : Request , exc : BusinessException):
     
     logger.error(f"System Error at : {request.url} : {exc.message} " , exc_info = True)
 

@@ -1,4 +1,4 @@
-from pydantic import base_model
+from pydantic import BaseModel
 
 class TokenPayload(BaseModel):
     tenant_id : str

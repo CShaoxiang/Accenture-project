@@ -1,4 +1,4 @@
-from core.enums import ResponseCodeEnum
+from app.enums import ResponseCodeEnum
 
 class BusinessException(Exception):
     """Base class for all bussiness-logic domain errors"""

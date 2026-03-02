@@ -3,20 +3,17 @@ FastAPI Routes
 Organized endpoints for health, authentication, and agent operations
 """
 
-import json
 import uuid
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException
-from app.core.database import SessionLocal
+from fastapi import APIRouter, Depends
+import jwt
 from app.core.security import create_jwt_token
-from app.models.schemas import (
-    Tenant, User, AgentTask,
-    TenantSchema, TokenSchema, AgentTaskSchema,
-    AgentTaskCreateSchema
-)
+from app.models.schemas import (TokenSchema, AgentTaskSchema,AgentTaskCreateSchema)
+from app.models.orm import Tenant , User ,  AgentTask
+from sqlalchemy.orm import Session
 from app.api.dependencies import get_current_tenant, get_db
-from app.exceptions.collextionExceptions import DatabaseConnectionException
-
+from app.exceptions.collectionExceptions import InvalidTokenException, TaskNotFoundException
+from app.models.tokens import TokenPayload
 # ==================== HEALTH ROUTER ====================
 router_health = APIRouter(tags=["Health"])
 
@@ -27,8 +24,8 @@ def health_check():
     return {
         "status": "healthy",
         "service": "agent-backend",
-        "timestamp": datetime.utcnow().isoformat()
-    }
+        "timestamp": datetime.now().isoformat()
+        }
 
 
 @router_health.get("/")
@@ -50,7 +47,7 @@ router_auth = APIRouter(prefix="/auth", tags=["Authentication"])
 def register_tenant(
     tenant_name: str, 
     api_key: str,
-    db :  Session = Depends(get_db)
+    db : Session= Depends(get_db)
     ):
     """
     Register a new tenant (typically called by admin/setup service)
@@ -70,6 +67,7 @@ def register_tenant(
             is_active=True
     )
     db.add(new_tenant)
+    db.flush()  # Get ID before commit
     db.refresh(new_tenant)
         
     return {
@@ -81,8 +79,7 @@ def register_tenant(
 
 
 @router_auth.post("/token", response_model=TokenSchema)
-def create_token(
-    tenant_id: str, user_id: int, username: str):
+def create_token(tenant_id: str, user_id: int, username: str):
     """
     Create JWT token for authenticated tenant/user
     
@@ -96,9 +93,11 @@ def create_token(
             "token_type": "bearer",
             "expires_in": 86400  # 24 hours
         }
-    except Exception as e:
+    except (jwt.InvalidSignatureError, jwt.DecodeError):
         raise InvalidTokenException()
 
+    except Exception as e:
+        raise Exception(f"Token creation failed: {str(e)}")
 
 # ==================== AGENT ROUTER ====================
 router_agent = APIRouter(prefix="/agent", tags=["Agent"])
@@ -107,8 +106,8 @@ router_agent = APIRouter(prefix="/agent", tags=["Agent"])
 @router_agent.post("/task", response_model=AgentTaskSchema)
 async def create_agent_task(
     task_data: AgentTaskCreateSchema,
-    tenant_data = Depends(get_current_tenant),
-    db = Depends(get_db)
+    tenant_data : TokenPayload = Depends(get_current_tenant),
+    db : Session = Depends(get_db)
 ):
     """
     Create a new agent task for execution
@@ -119,43 +118,43 @@ async def create_agent_task(
         db: Database session
     """
    
-        task = AgentTask(
-            tenant_id=tenant_data['tenant_id'],
-            user_id=tenant_data['user_id'],
-            task_name=task_data.task_name,
-            input_data= task_data.input_data,  # JSON will be stored as string
-            status="pending"
+    task = AgentTask(
+    tenant_id=tenant_data.tenant_id,
+    user_id=tenant_data.user_id,
+    task_name=task_data.task_name,
+    input_data= task_data.input_data,  # JSON will be stored as string
+    status="pending"
         )
-        db.add(task)
-        db.flush()  # Get ID before commit
+    db.add(task)
+    db.flush()  # Get ID before commit
         
-        return task
+    return task
 
 
 @router_agent.get("/task/{task_id}", response_model=AgentTaskSchema)
 async def get_agent_task(
     task_id: int,
-    tenant_data = Depends(get_current_tenant),
-    db = Depends(get_db)
+    tenant_data : TokenPayload = Depends(get_current_tenant),
+    db : Session = Depends(get_db)
 ):
     """Retrieve task status (tenant-scoped)"""
    
-        task = db.query(AgentTask).filter(
-            AgentTask.id == task_id,
-            AgentTask.tenant_id == tenant_data['tenant_id']  # Tenant isolation
-        ).first()
-        
-        if not task:
-            raise TaskNotFoundException()
-        
-        return AgentTaskSchema(
-            id=task.id,
-            tenant_id=task.tenant_id,
-            task_name=task.task_name,
-            status=task.status,
-            input_data= task.input_data,
-            output_data=task.output_data,
-            created_at=task.created_at,
-            completed_at=task.completed_at,
-            error_message=task.error_message
-        )
+    task = db.query(AgentTask).filter(
+        AgentTask.id == task_id,
+        AgentTask.tenant_id == tenant_data.tenant_id  # Tenant isolation
+    ).first()
+    
+    if not task:
+        raise TaskNotFoundException()
+    
+    return AgentTaskSchema(
+        id=task.id,
+        tenant_id=task.tenant_id,
+        task_name=task.task_name,
+        status=task.status,
+        input_data= task.input_data,
+        output_data=task.output_data,
+        created_at=task.created_at,
+        completed_at=task.completed_at,
+        error_message=task.error_message
+    )

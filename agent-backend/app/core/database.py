@@ -27,24 +27,3 @@ SessionLocal = sessionmaker(
 )
 
 
-def get_db():
-    """
-    Dependency for getting database session
-    
-    Usage in FastAPI routes:
-        async def my_route(db = Depends(get_db_session)):
-            ...
-    """
-    # Create a new database session for the request
-    db = SessionLocal()
-    try:
-        # pauses the function , hands this session to API route
-        yield db
-        db.commit()     
-    except Exception as e:
-        db.rollback()  
-        raise DBConnectionException()  # Raise a custom exception for database errors
-
-    finally:
-        # After the request is done, close the session to free resources
-        db.close()
