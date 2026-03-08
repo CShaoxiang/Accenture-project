@@ -18,11 +18,12 @@ class ResponseCodeEnum(Enum):
 
     # Business logic related
 
-@property
-def getCode(self) -> int:
-    return self.value[0]
 
-@property
-def getMessage(self) -> str:
-    return self.value[1]
+    @property
+    def getCode(self) -> int:
+        return self.value[0]
+
+    @property
+    def getMessage(self) -> str:
+        return self.value[1]
 

@@ -15,7 +15,7 @@ class Tenant(Base):
     tenant_id = Column(String, unique=True, index=True)  # External ID from JWT
     name = Column(String, index=True)
     api_key = Column(String, unique=True)
-    created_at = Column(DateTime, lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime,default=lambda: datetime.now(timezone.utc))
     is_active = Column(Boolean, default=True)
 
 
@@ -29,7 +29,7 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime,lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime,default=lambda: datetime.now(timezone.utc))
 
 
 class AgentTask(Base):
@@ -43,6 +43,6 @@ class AgentTask(Base):
     status = Column(String, default="pending")  # pending, running, completed, failed
     input_data = Column(JSON)  # JSON stored as string
     output_data = Column(JSON, nullable=True)  # JSON stored as string
-    created_at = Column(DateTime, lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime,default=lambda: datetime.now(timezone.utc))
     completed_at = Column(DateTime, nullable=True)
     error_message = Column(String, nullable=True)

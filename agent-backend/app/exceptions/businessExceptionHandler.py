@@ -4,7 +4,6 @@ from app.exceptions.baseException import BusinessException
 import logging
 
 logger = logging.getLogger(__name__)
-app = FastAPI()
 
 # Handle business exceptions
 @app.exception_handler(BusinessException)

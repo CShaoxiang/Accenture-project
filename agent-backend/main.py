@@ -4,7 +4,7 @@ Main entry point for the FastAPI service
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime ,timeZone 
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,6 +15,7 @@ from app.core.config import settings
 from app.core.database import engine, Base
 from app.api.routes import router_health, router_auth, router_agent
 from app.monitoring.observability import setup_logging, get_logger, log_request, log_response
+from app.exceptions.businessExceptionHandler import BusinessException, business_exception_handler
 
 # ==================== SETUP ====================
 
@@ -44,12 +45,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_exception_handler(BusinessException, business_exception_handler)
 
 # Request/Response Logging Middleware
 @app.middleware("http")
 async def log_requests_middleware(request: Request, call_next):
     """Log all incoming requests and responses"""
-    start_time = datetime.utcnow()
+    start_time = datetime.now(timeZone.utc)
     
     log_request(
         logger,
@@ -60,7 +62,7 @@ async def log_requests_middleware(request: Request, call_next):
     
     response = await call_next(request)
     
-    process_time = (datetime.utcnow() - start_time).total_seconds()
+    process_time = (datetime.now(timeZone.utc) - start_time).total_seconds()
     log_response(logger, request.method, request.url.path, response.status_code, process_time)
     
     return response

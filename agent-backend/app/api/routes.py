@@ -9,11 +9,11 @@ from fastapi import APIRouter, Depends
 import jwt
 from app.core.security import create_jwt_token
 from app.models.schemas import (TokenSchema, AgentTaskSchema,AgentTaskCreateSchema)
-from app.models.orm import Tenant , User ,  AgentTask
+from app.models.orm import Tenant , User , AgentTask
 from sqlalchemy.orm import Session
 from app.api.dependencies import get_current_tenant, get_db
 from app.exceptions.collectionExceptions import InvalidTokenException, TaskNotFoundException
-from app.models.tokens import TokenPayload
+from app.models.dto import TokenPayload , TenantContext
 # ==================== HEALTH ROUTER ====================
 router_health = APIRouter(tags=["Health"])
 
@@ -86,7 +86,8 @@ def create_token(tenant_id: str, user_id: int, username: str):
     In production, this would verify credentials first
     """
     try:
-        token = create_jwt_token(tenant_id, user_id, username)
+        payload = TokenPayload(tenant_id=tenant_id,user_id=user_id,sub=username)
+        token = create_jwt_token(payload)
         
         return {
             "access_token": token,
@@ -106,7 +107,7 @@ router_agent = APIRouter(prefix="/agent", tags=["Agent"])
 @router_agent.post("/task", response_model=AgentTaskSchema)
 async def create_agent_task(
     task_data: AgentTaskCreateSchema,
-    tenant_data : TokenPayload = Depends(get_current_tenant),
+    tenant_data: TenantContext = Depends(get_current_tenant),
     db : Session = Depends(get_db)
 ):
     """
@@ -134,14 +135,14 @@ async def create_agent_task(
 @router_agent.get("/task/{task_id}", response_model=AgentTaskSchema)
 async def get_agent_task(
     task_id: int,
-    tenant_data : TokenPayload = Depends(get_current_tenant),
+    tenant_data: TenantContext = Depends(get_current_tenant),
     db : Session = Depends(get_db)
 ):
     """Retrieve task status (tenant-scoped)"""
    
     task = db.query(AgentTask).filter(
         AgentTask.id == task_id,
-        AgentTask.tenant_id == tenant_data.tenant_id  # Tenant isolation
+        AgentTask.tenant_id == tenant_data.tenant_id # Tenant isolation
     ).first()
     
     if not task:

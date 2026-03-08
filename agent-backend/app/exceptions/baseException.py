@@ -5,6 +5,6 @@ class BusinessException(Exception):
 
     def __init__(self, error_enum : ResponseCodeEnum):
         self.codeEnum = error_enum
-        self.code = error_enum.code
-        self.message = error_enum.message
+        self.code = error_enum.getCode
+        self.message = error_enum.getMessage
         super().__init__(self.message)
